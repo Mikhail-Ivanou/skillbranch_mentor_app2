@@ -87,11 +87,7 @@ class MainPageStateWidget extends StatelessWidget {
           case MainPageState.loadingError:
             return LoadingError();
           case MainPageState.searchResults:
-            return Center(
-                child: Text(
-              snapshot.data!.toString(),
-              style: TextStyle(color: Colors.white),
-            ));
+            return SearchResult();
         }
       },
     );
