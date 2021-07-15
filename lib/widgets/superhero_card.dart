@@ -22,7 +22,11 @@ class SuperheroCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
           height: 70,
-          color: SuperheroesColors.card_background,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: SuperheroesColors.indigo,
+          ),
           child: Row(
             children: [
               Image.network(

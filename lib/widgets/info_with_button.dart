@@ -64,7 +64,7 @@ class InfoWithButton extends StatelessWidget {
         SizedBox(
           height: 30,
         ),
-        SizedBox(width: 96, child: ActionButton(text: buttonText, onTap: () {})),
+        ActionButton(text: buttonText, onTap: () {}),
       ],
     );
   }
