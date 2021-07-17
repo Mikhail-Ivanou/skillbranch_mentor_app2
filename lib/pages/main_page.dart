@@ -81,6 +81,9 @@ class _SearchWidgetState extends State<SearchWidget> {
     return TextField(
       controller: controller,
       style: TextStyle(fontWeight: FontWeight.w400, fontSize: 20, color: Colors.white),
+      cursorColor: Colors.white,
+      textInputAction: TextInputAction.search,
+      textCapitalization: TextCapitalization.words,
       decoration: InputDecoration(
         filled: true,
         fillColor: SuperheroesColors.indigo75,
@@ -106,6 +109,10 @@ class _SearchWidgetState extends State<SearchWidget> {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: Colors.white24),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.white, width: 2),
         ),
       ),
     );
@@ -276,6 +283,7 @@ class SuperheroesList extends StatelessWidget {
           }
           final List<SuperheroInfo> superheroes = snapshot.data!;
           return ListView.separated(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             separatorBuilder: (BuildContext context, int index) {
               return const SizedBox(
                 height: 8,
@@ -295,16 +303,15 @@ class SuperheroesList extends StatelessWidget {
               return Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: SuperheroCard(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SuperheroPage(name: item.name),
-                          ));
-                    },
-                    name: item.name,
-                    realName: item.realName,
-                    imageUrl: item.imageUrl),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SuperheroPage(name: item.name),
+                        ));
+                  },
+                  superheroInfo: item,
+                ),
               );
             },
             itemCount: superheroes.length + 1,
