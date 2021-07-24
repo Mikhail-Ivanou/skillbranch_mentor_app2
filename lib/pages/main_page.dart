@@ -66,13 +66,22 @@ class SearchWidget extends StatefulWidget {
 
 class _SearchWidgetState extends State<SearchWidget> {
   final TextEditingController controller = TextEditingController();
+  bool hasText = false;
 
   @override
   void initState() {
     super.initState();
     SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
       final MainBloc bloc = Provider.of<MainBloc>(context, listen: false);
-      controller.addListener(() => bloc.updateText(controller.text));
+      controller.addListener(() {
+        bloc.updateText(controller.text);
+        final hasText = controller.text.isNotEmpty;
+        if (this.hasText != hasText) {
+          setState(() {
+            this.hasText = hasText;
+          });
+        }
+      });
     });
   }
 
@@ -108,7 +117,8 @@ class _SearchWidgetState extends State<SearchWidget> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.white24),
+          borderSide:
+              hasText ? const BorderSide(color: Colors.white, width: 2) : const BorderSide(color: Colors.white24),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -134,14 +144,32 @@ class MainPageStateWidget extends StatelessWidget {
           case MainPageState.loading:
             return LoadingIndicator();
           case MainPageState.noFavorites:
-            return NoFavorites();
+            return Stack(children: [
+              NoFavorites(),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: ActionButton(
+                  text: "Remove",
+                  onTap: () => bloc.removeFavorite(),
+                ),
+              ),
+            ]);
           case MainPageState.minSymbols:
             return MinSymbols();
           case MainPageState.favorites:
-            return SuperheroesList(
-              title: 'Your favorites',
-              stream: bloc.observeFavoriteSuperheroes(),
-            );
+            return Stack(children: [
+              SuperheroesList(
+                title: 'Your favorites',
+                stream: bloc.observeFavoriteSuperheroes(),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: ActionButton(
+                  text: "Remove",
+                  onTap: () => bloc.removeFavorite(),
+                ),
+              ),
+            ]);
           case MainPageState.nothingFound:
             return NothingFound();
           case MainPageState.loadingError:

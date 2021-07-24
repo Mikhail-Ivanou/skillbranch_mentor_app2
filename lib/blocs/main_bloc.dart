@@ -64,6 +64,11 @@ class MainBloc {
     currentTextSubject.add(text ?? '');
   }
 
+  void removeFavorite() {
+    final current = favoritesSuperheroesSubject.value;
+    favoritesSuperheroesSubject.add(current.isEmpty ? SuperheroInfo.mocked : current.sublist(0, current.length - 1));
+  }
+
   void dispose() {
     stateSubject.close();
     favoritesSuperheroesSubject.close();
