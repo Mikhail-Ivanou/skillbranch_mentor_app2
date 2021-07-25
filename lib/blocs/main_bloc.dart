@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:http/http.dart' as http;
+import 'package:superheroes/model/superhero.dart';
 
 class MainBloc {
   static const minSymbols = 3;
@@ -14,7 +18,9 @@ class MainBloc {
   StreamSubscription? textSubscription;
   StreamSubscription? searchSubscription;
 
-  MainBloc() {
+  http.Client? client;
+
+  MainBloc({this.client}) {
     stateSubject.sink.add(MainPageState.noFavorites);
     textSubscription = Rx.combineLatest2<String, List<SuperheroInfo>, MainPageStateInfo>(
       currentTextSubject.distinct().debounceTime(Duration(milliseconds: 500)),
@@ -39,11 +45,32 @@ class MainBloc {
   }
 
   Stream<List<SuperheroInfo>> observeFavoriteSuperheroes() => favoritesSuperheroesSubject;
+
   Stream<List<SuperheroInfo>> observeSearchedSuperheroes() => searchedSuperheroesSubject;
 
   Future<List<SuperheroInfo>> search(final String text) async {
-    await Future.delayed(Duration(seconds: 1));
-    return SuperheroInfo.mocked.where((element) => element.name.toLowerCase().contains(text.toLowerCase())).toList();
+    final token = dotenv.env['SUPERHERO_TOKEN'];
+    final response =
+        await (client ??= http.Client()).get(Uri.parse('https://superheroapi.com/api/$token/search/$text'));
+    final decoded = json.decode(response.body);
+
+    if (decoded['response'] == 'success') {
+      final List<dynamic> results = decoded['results'];
+      final List<Superhero> superheroes = results.map((e) => Superhero.fromJson(e)).toList();
+      final List<SuperheroInfo> found = superheroes
+          .map((rawSuperHero) => SuperheroInfo(
+                name: rawSuperHero.name,
+                realName: rawSuperHero.biography.fullName,
+                imageUrl: rawSuperHero.image.url,
+              ))
+          .toList();
+      return found;
+    } else if (decoded['response'] == 'error') {
+      if (decoded['error'] == 'character with given name not found') {
+        return [];
+      }
+    }
+    throw Exception('Unknown error happened');
   }
 
   void searchForSuperheroes(final String text) {
@@ -77,6 +104,7 @@ class MainBloc {
 
     textSubscription?.cancel();
     searchSubscription?.cancel();
+    client?.close();
   }
 }
 

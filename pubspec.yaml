@@ -6,7 +6,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.13.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -14,16 +14,24 @@ dependencies:
   rxdart: ^0.27.1
   provider: ^5.0.0
   google_fonts: ^2.1.0
-
-
+  http: ^0.13.3
+  flutter_dotenv: ^5.0.0
+  json_annotation: ^4.1.0
+  cached_network_image: ^3.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   network_image_mock: ^2.0.1
+  build_runner: ^2.0.6
+  json_serializable: ^5.0.0
+
+dependency_overrides:
+  meta: 1.5.0
 
 flutter:
   uses-material-design: true
   assets:
     - google_fonts/
     - assets/images/
+    - .env
