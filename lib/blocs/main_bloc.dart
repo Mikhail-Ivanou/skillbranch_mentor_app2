@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:http/http.dart' as http;
+import 'package:superheroes/exception/api_exception.dart';
 import 'package:superheroes/model/superhero.dart';
 
 class MainBloc {
@@ -19,6 +21,7 @@ class MainBloc {
   StreamSubscription? searchSubscription;
 
   http.Client? client;
+  FocusNode? focusNode;
 
   MainBloc({this.client}) {
     stateSubject.sink.add(MainPageState.noFavorites);
@@ -69,8 +72,20 @@ class MainBloc {
       if (decoded['error'] == 'character with given name not found') {
         return [];
       }
+      throw ApiException('Client error happened');
+    }
+    if (400 >= response.statusCode && response.statusCode <= 499) {
+      throw ApiException('Client error happened');
+    }
+    if (500 >= response.statusCode && response.statusCode <= 599) {
+      throw ApiException('Server error happened');
     }
     throw Exception('Unknown error happened');
+  }
+
+  void retry() {
+    final currentSearchInput = currentTextSubject.value;
+    searchForSuperheroes(currentSearchInput);
   }
 
   void searchForSuperheroes(final String text) {

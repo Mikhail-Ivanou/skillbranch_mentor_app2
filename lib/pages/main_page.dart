@@ -21,10 +21,16 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   late MainBloc bloc;
+  late FocusNode focusNode;
 
   @override
   void initState() {
     bloc = MainBloc(client: widget.client);
+    focusNode = FocusNode();
+    focusNode.addListener(() {
+      print('Listener');
+    });
+    bloc.focusNode = focusNode;
     super.initState();
   }
 
@@ -44,6 +50,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void dispose() {
     bloc.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 }
@@ -95,8 +102,10 @@ class _SearchWidgetState extends State<SearchWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final MainBloc bloc = Provider.of<MainBloc>(context, listen: false);
     return TextField(
       controller: controller,
+      focusNode: bloc.focusNode,
       style: TextStyle(fontWeight: FontWeight.w400, fontSize: 20, color: Colors.white),
       cursorColor: Colors.white,
       textInputAction: TextInputAction.search,
@@ -250,6 +259,10 @@ class NoFavorites extends StatelessWidget {
         imageWidth: 108,
         imageHeight: 119,
         imageTopPadding: 9,
+        onTap: () {
+          final MainBloc bloc = Provider.of<MainBloc>(context, listen: false);
+          FocusScope.of(context).requestFocus(bloc.focusNode);
+        },
       ),
     );
   }
@@ -272,6 +285,10 @@ class NothingFound extends StatelessWidget {
         imageWidth: 84,
         imageHeight: 112,
         imageTopPadding: 16,
+        onTap: () {
+          final MainBloc bloc = Provider.of<MainBloc>(context, listen: false);
+          FocusScope.of(context).requestFocus(bloc.focusNode);
+        },
       ),
     );
   }
@@ -294,6 +311,9 @@ class LoadingError extends StatelessWidget {
         imageWidth: 126,
         imageHeight: 106,
         imageTopPadding: 22,
+        onTap: () {
+          context.read<MainBloc>().retry();
+        },
       ),
     );
   }
