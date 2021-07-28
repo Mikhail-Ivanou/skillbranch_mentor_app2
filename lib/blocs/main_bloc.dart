@@ -80,7 +80,7 @@ class MainBloc {
     if (500 >= response.statusCode && response.statusCode <= 599) {
       throw ApiException('Server error happened');
     }
-    throw Exception('Unknown error happened');
+    throw ApiException('Unknown error happened');
   }
 
   void retry() {
