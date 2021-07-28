@@ -74,13 +74,13 @@ class MainBloc {
       }
       throw ApiException('Client error happened');
     }
-    if (400 >= response.statusCode && response.statusCode <= 499) {
+    if (response.statusCode >= 400 && response.statusCode <= 499) {
       throw ApiException('Client error happened');
-    }
-    if (500 >= response.statusCode && response.statusCode <= 599) {
+    } else if (response.statusCode >= 500 && response.statusCode <= 599) {
       throw ApiException('Server error happened');
+    } else {
+      throw ApiException('Unknown error happened');
     }
-    throw ApiException('Unknown error happened');
   }
 
   void retry() {
